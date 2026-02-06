@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Будешь моей валентинкой? 💖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle, #ffecf2 0%, #ffe5ed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: background 0.5s ease;
+        }
+
+        body.final-stage {
+            background: linear-gradient(45deg, #ff6b9d, #ff8fab, #ffb3c1);
+        }
+
+        .title {
+            font-weight: 900;
+            color: #fb5596;
+            font-size: 2.4rem;
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 0 20px;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        body.final-stage .title {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+
+        .buttons-container {
+            position: relative;
+            margin-top: 20px;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        body.final-stage .buttons-container {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .yes-btn {
+            background: linear-gradient(90deg, #ffbee3 0%, #fb5596 80%);
+            border: none;
+            color: #fff;
+            border-radius: 12px;
+            font-size: 25px;
+            font-weight: 600;
+            padding: 16px 50px;
+            margin-right: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px 0 #fad4ee;
+            transition: all 0.3s ease;
+        }
+
+        .yes-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px 0 #fad4ee;
+        }
+
+        .yes-btn:disabled {
+            opacity: 0.7;
+            cursor: default;
+            transform: none;
+        }
+
+        .no-btn {
+            background: #fff;
+            border: 2px solid #fb5596;
+            color: #fb5596;
+            border-radius: 12px;
+            font-size: 25px;
+            font-weight: 600;
+            padding: 16px 50px;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all .18s cubic-bezier(.52,2.11,.68,.7);
+            box-shadow: 0 2px 14px 0 #ffd0f0;
+            position: relative;
+            z-index: 100;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .no-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .no-btn.moving {
+            position: fixed;
+            z-index: 1000;
+        }
+
+        .no-btn.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .result-message {
+            margin-top: 40px;
+            font-weight: bold;
+            font-size: 26px;
+            color: #fb5596;
+            text-align: center;
+            padding: 0 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        .result-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Center Message Box */
+        .center-message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            z-index: 5000;
+            max-width: 500px;
+            width: 90%;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .center-message-box.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .center-message-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .center-message-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fb5596;
+            margin-bottom: 15px;
+        }
+
+        .center-message-subtext {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .message-counter {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: #fb5596;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(251, 85, 150, 0.4);
+        }
+
+        .click-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fb5596;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .final-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            max-width: 80%;
+            max-height: 80%;
+            border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            z-index: 10000;
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .final-image.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .final-text {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            font-weight: 900;
+            color: white;
+            text-align: center;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 1s ease;
+            width: 90%;
+        }
+
+        .final-text.show {
+            opacity: 1;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            background: var(--color);
+            z-index: 9999;
+            opacity: 0.8;
+            animation: confetti 3s linear forwards;
+        }
+
+        @media (max-width: 600px) {
+            .title {
+                font-size: 1.8rem;
+                margin-bottom: 30px;
+            }
+            
+            .buttons-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .yes-btn, .no-btn {
+                margin: 0;
+                width: 200px;
+            }
+            
+            .no-btn.moving {
+                position: absolute;
+            }
+            
+            .center-message-box {
+                padding: 30px 20px;
+            }
+            
+            .center-message-text {
+                font-size: 20px;
+            }
+            
+            .center-message-subtext {
+                font-size: 16px;
+            }
+            
+            .click-counter {
+                top: 10px;
+                right: 10px;
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            .final-text {
+                font-size: 24px;
+                top: 15%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="click-counter" id="clickCounter">
+        Наведений на "Нет": <span id="clickCount">0</span>/10
+    </div>
+    
+    <h1 class="title">Будешь моей валентинкой? 💖</h1>
+    
+    <div class="buttons-container">
+        <button class="yes-btn" id="yesBtn">Да</button>
+        <button class="no-btn" id="noBtn">Нет</button>
+    </div>
+    
+    <div class="result-message" id="resultMessage">
+        Ура! Ты моя валентинка! 😍
+    </div>
+    
+    <div class="center-message-box" id="centerMessageBox">
+        <div class="message-counter" id="messageCounter">1/5</div>
+        <img class="center-message-image" id="centerMessageImage" src="" alt="">
+        <div class="center-message-text" id="centerMessageText"></div>
+        <div class="center-message-subtext" id="centerMessageSubtext"></div>
+    </div>
+    
+    <img class="final-image" id="finalImage" src="" alt="Финальная картинка">
+    <div class="final-text" id="finalText"></div>
+
+    <script>
+        let noHovers = 0;
+        let yesClicked = false;
+        let noBtnPos = { x: null, y: null };
+        let currentImageIndex = 0;
+        let isNoBtnHidden = false;
+        let canCountThisHover = true;
+
+        const messages = [
+            {
+                image: 'https://i.imgur.com/VvjG8hL.png',
+                title: 'Не понял!!!',
+                text: ''
+            },
+            {
+                image: 'https://i.imgur.com/6D7q5ZN.png',
+                title: 'ОЧЧКИ ННННАДДООО???',
+                text: ''
+            },
+            {
+                image: 'https://i.imgur.com/jJQ6yTt.png',
+                title: 'Я тебе сейчас по жопе надаю, понятно??',
+                text: ''
+            },
+            {
+                image: 'https://i.imgur.com/8n7yCqg.png',
+                title: 'Готовь жопу, ты меня разозлила',
+                text: ''
+            },
+            {
+                image: 'https://i.imgur.com/5q0CHQo.png',
+                title: 'Тоби пизда!',
+                text: ''
+            }
+        ];
+
+        const finalStage = {
+            image: 'https://i.imgur.com/5q0CHQo.png',
+            text: 'КОНЕЦ ИГРЫ! 😂 Ты проиграл, нажав НЕТ 10 раз!'
+        };
+
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const resultMessage = document.getElementById('resultMessage');
+        const clickCounter = document.getElementById('clickCounter');
+        const clickCount = document.getElementById('clickCount');
+        const centerMessageBox = document.getElementById('centerMessageBox');
+        const centerMessageImage = document.getElementById('centerMessageImage');
+        const centerMessageText = document.getElementById('centerMessageText');
+        const centerMessageSubtext = document.getElementById('centerMessageSubtext');
+        const messageCounter = document.getElementById('messageCounter');
+        const finalImage = document.getElementById('finalImage');
+        const finalText = document.getElementById('finalText');
+        const body = document.body;
+
+        centerMessageImage.onerror = function() {
+            this.src = `https://via.placeholder.com/300x300/fb5596/ffffff?text=Картинка+${currentImageIndex + 1}`;
+        };
+        
+        finalImage.onerror = function() {
+            this.src = `https://via.placeholder.com/600x400/fb5596/ffffff?text=ФИНАЛ!+10+наведений`;
+        };
+
+        function getRandomPosition(btnWidth, btnHeight) {
+            const margin = 20;
+            const width = window.innerWidth - btnWidth - margin;
+            const height = window.innerHeight - btnHeight - margin;
+            const x = Math.floor(Math.random() * width);
+            const y = Math.floor(Math.random() * height);
+            return { x, y };
+        }
+
+        function updateCounter() {
+            clickCount.textContent = noHovers;
+        }
+
+        function showCenterMessage() {
+            if (currentImageIndex >= messages.length) return;
+            
+            const message = messages[currentImageIndex];
+            
+            messageCounter.textContent = `${currentImageIndex + 1}/${messages.length}`;
+            
+            centerMessageImage.src = message.image;
+            centerMessageText.textContent = message.title;
+            centerMessageSubtext.textContent = message.text;
+            
+            centerMessageBox.classList.add('show');
+            
+            setTimeout(() => {
+                centerMessageBox.classList.remove('show');
+                
+                setTimeout(() => {
+                    if (currentImageIndex < messages.length) {
+                        noBtn.classList.remove('hidden');
+                        isNoBtnHidden = false;
+                        canCountThisHover = true;
+                        
+                        const rect = noBtn.getBoundingClientRect();
+                        const { x, y } = getRandomPosition(rect.width, rect.height);
+                        noBtn.style.left = x + 'px';
+                        noBtn.style.top = y + 'px';
+                        noBtn.classList.add('moving');
+                        noBtnPos = { x, y };
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function showFinalStage() {
+            body.classList.add('final-stage');
+            
+            finalImage.src = finalStage.image;
+            finalText.textContent = finalStage.text;
+            
+            setTimeout(() => {
+                finalImage.classList.add('show');
+                finalText.classList.add('show');
+            }, 500);
+            
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b9d', '#ff8fab', '#ffb3c1', '#fb5596', '#ff4081'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.width = Math.random() * 20 + 10 + 'px';
+                confetti.style.height = Math.random() * 20 + 10 + 'px';
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        function handleNoEnter() {
+            if (yesClicked || isNoBtnHidden || !canCountThisHover) return;
+            
+            noHovers++;
+            updateCounter();
+            canCountThisHover = false;
+            
+            const rect = noBtn.getBoundingClientRect();
+            const { x, y } = getRandomPosition(rect.width, rect.height);
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+            noBtn.classList.add('moving');
+            noBtnPos = { x, y };
+            
+            if (noHovers % 4 === 0 && currentImageIndex < messages.length) {
+                noBtn.classList.add('hidden');
+                isNoBtnHidden = true;
+                
+                showCenterMessage();
+                
+                currentImageIndex++;
+            }
+            
+            if (currentImageIndex >= messages.length && noHovers >= 10) {
+                showFinalStage();
+            }
+        }
+
+        function handleNoLeave() {
+            setTimeout(() => {
+                canCountThisHover = true;
+            }, 100);
+        }
+
+        function handleNoClick(e) {
+            e.preventDefault();
+            
+            if (yesClicked || isNoBtnHidden) return;
+            
+            handleNoEnter();
+        }
+
+        function handleYesClick() {
+            if (yesClicked) return;
+            
+            yesClicked = true;
+            yesBtn.disabled = true;
+            resultMessage.classList.add('show');
+            
+            noBtn.classList.add('hidden');
+            isNoBtnHidden = true;
+            
+            centerMessageBox.classList.remove('show');
+        }
+
+        yesBtn.addEventListener('click', handleYesClick);
+        
+        noBtn.addEventListener('mouseenter', handleNoEnter);
+        noBtn.addEventListener('mouseleave', handleNoLeave);
+        noBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            handleNoEnter();
+        });
+        noBtn.addEventListener('click', handleNoClick);
+
+        window.addEventListener('resize', function() {
+            if (noBtn.classList.contains('moving') && noBtnPos.x !== null && !isNoBtnHidden) {
+                const rect = noBtn.getBoundingClientRect();
+                const { x, y } = getRandomPosition(rect.width, rect.height);
+                
+                noBtn.style.left = x + 'px';
+                noBtn.style.top = y + 'px';
+                noBtnPos = { x, y };
+            }
+        });
+
+        noBtn.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        yesBtn.addEventListener('mousedown', function() {
+            if (!this.disabled) {
+                this.style.transform = 'scale(0.95)';
+            }
+        });
+        
+        yesBtn.addEventListener('mouseup', function() {
+            this.style.transform = '';
+        });
+        
+        yesBtn.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+
+        updateCounter();
+    </script>
+</body>
+</html>
