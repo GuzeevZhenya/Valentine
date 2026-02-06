@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пазл-валентинка 🧩❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffe6e6, #ffcccc);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #ff3366;
+            margin: 20px 0;
+            text-align: center;
+            text-shadow: 2px 2px 0 #ffebee;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .image-selector {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 51, 102, 0.2);
+            margin-bottom: 30px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .image-item {
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            aspect-ratio: 1;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .image-item.selected {
+            border-color: #ff3366;
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.4);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .image-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffebee;
+            color: #ff3366;
+            font-size: 2rem;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            max-width: 400px;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background: #ff3366;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #ff0040;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .puzzle-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 2px solid #ff3366;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .game-container {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .pieces-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .pieces-title {
+            color: #ff3366;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        #puzzlePieces {
+            display: grid;
+            gap: 10px;
+            min-height: 300px;
+        }
+
+        .puzzle-board {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-width: 400px;
+        }
+
+        .board-title {
+            color: #ff3366;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        #puzzleBoard {
+            display: grid;
+            gap: 2px;
+            border: 2px dashed #ff99aa;
+            border-radius: 5px;
+            padding: 2px;
+        }
+
+        .board-cell {
+            background: #fff5f7;
+            border: 1px solid #ffccd5;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .board-cell:hover {
+            background: #ffebee;
+        }
+
+        .board-cell.correct {
+            border: 2px solid #4CAF50;
+            background: #f1f8e9;
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .message h2 {
+            color: #ff3366;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .message p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            color: #ff3366;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .moves-counter {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            color: #ff3366;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(-100px) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+            z-index: 1001;
+            opacity: 0.8;
+            animation: confetti 3s linear forwards;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pieces-container, .puzzle-board {
+                width: 90%;
+                max-width: none;
+            }
+            
+            #puzzleBoard {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1;
+            }
+            
+            .timer, .moves-counter {
+                position: relative;
+                top: auto;
+                left: auto;
+                right: auto;
+                margin: 10px;
+                display: inline-block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">Пазл-валентинка 🧩❤️</h1>
+    <p class="subtitle">Выбери картинку из галереи и собери пазл!</p>
+    
+    <div class="image-selector">
+        <h3>Выбери картинку:</h3>
+        <div class="image-grid" id="imageGrid">
+            <!-- Картинки будут добавлены через JavaScript -->
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <img id="imagePreview" src="" alt="Предпросмотр">
+        </div>
+        
+        <div class="controls">
+            <button id="createPuzzleBtn" onclick="createPuzzle()" disabled>
+                <span>🧩</span> Создать пазл
+            </button>
+            <button id="shuffleBtn" onclick="shufflePieces()" disabled>
+                <span>🔀</span> Перемешать
+            </button>
+        </div>
+        
+        <div class="puzzle-controls">
+            <span>Сложность:</span>
+            <select id="difficulty">
+                <option value="4">Легкая (4x4)</option>
+                <option value="5" selected>Средняя (5x5)</option>
+                <option value="6">Сложная (6x6)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="timer" id="timer">⏱️ 00:00</div>
+    <div class="moves-counter" id="movesCounter">↔️ Ходы: 0</div>
+    
+    <div class="game-container" id="gameContainer">
+        <div class="pieces-container">
+            <div class="pieces-title">Кусочки пазла</div>
+            <div id="puzzlePieces"></div>
+        </div>
+        
+        <div class="puzzle-board">
+            <div class="board-title">Поле для сборки</div>
+            <div id="puzzleBoard"></div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    <div class="message" id="message">
+        <h2>🎉 Ура! Пазл собран! 🎉</h2>
+        <p>Время: <span id="finalTime">00:00</span></p>
+        <p>Ходы: <span id="finalMoves">0</span></p>
+        <button onclick="playAgain()">Играть ещё раз 🔄</button>
+    </div>
+
+    <script>
+        // Переменные игры
+        let selectedImage = null;
+        let originalImage = null;
+        let puzzlePieces = [];
+        let boardCells = [];
+        let gameStarted = false;
+        let startTime = null;
+        let timerInterval = null;
+        let moves = 0;
+        let difficulty = 5;
+        let draggedPiece = null;
+
+        // Список картинок в папке img
+        const imageFiles = [
+            '1.jpg',
+            '2.jpg',           
+        ];
+
+        // Запасные картинки (если файлы не найдены)
+        const fallbackImages = [
+            'https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w-400&h=400&fit=crop',
+        ];
+
+        // Элементы DOM
+        const imageGrid = document.getElementById('imageGrid');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('previewContainer');
+        const createPuzzleBtn = document.getElementById('createPuzzleBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const gameContainer = document.getElementById('gameContainer');
+        const puzzlePiecesContainer = document.getElementById('puzzlePieces');
+        const puzzleBoard = document.getElementById('puzzleBoard');
+        const message = document.getElementById('message');
+        const overlay = document.getElementById('overlay');
+        const timer = document.getElementById('timer');
+        const movesCounter = document.getElementById('movesCounter');
+        const difficultySelect = document.getElementById('difficulty');
+
+        // Загружаем галерею картинок
+        function loadImageGallery() {
+            imageGrid.innerHTML = '';
+            
+            // Создаем элементы для каждой картинки
+            imageFiles.forEach((filename, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.dataset.filename = filename;
+                imageItem.dataset.index = index;
+                
+                const img = document.createElement('img');
+                img.src = `img/${filename}`;
+                img.alt = `Валентинка ${index + 1}`;
+                img.onerror = function() {
+                    // Если картинка не загрузилась, используем запасную
+                    this.src = fallbackImages[index % fallbackImages.length];
+                    this.alt = `Запасная картинка ${index + 1}`;
+                };
+                
+                imageItem.appendChild(img);
+                imageItem.addEventListener('click', () => selectImage(filename, imageItem));
+                
+                imageGrid.appendChild(imageItem);
+            });
+            
+            // Добавляем возможность загрузки по умолчанию
+            if (imageFiles.length > 0) {
+                selectImage(imageFiles[0], imageGrid.firstElementChild);
+            }
+        }
+
+        // Выбор картинки
+        function selectImage(filename, element) {
+            // Убираем выделение со всех картинок
+            document.querySelectorAll('.image-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Выделяем выбранную картинку
+            element.classList.add('selected');
+            
+            // Показываем предпросмотр
+            const imgPath = `img/${filename}`;
+            imagePreview.src = imgPath;
+            previewContainer.style.display = 'block';
+            createPuzzleBtn.disabled = false;
+            
+            // Сохраняем выбранную картинку
+            selectedImage = filename;
+            
+            // Загружаем оригинал для пазла
+            originalImage = new Image();
+            originalImage.src = imgPath;
+            originalImage.onerror = function() {
+                // Если не загрузилась, используем первую запасную
+                this.src = fallbackImages[0];
+            };
+        }
+
+        // Создание пазла
+        function createPuzzle() {
+            if (!originalImage) return;
+            
+            difficulty = parseInt(difficultySelect.value);
+            gameContainer.style.display = 'flex';
+            timer.style.display = 'block';
+            movesCounter.style.display = 'block';
+            
+            // Ждем загрузки изображения
+            originalImage.onload = function() {
+                // Создаем канвас для разрезания изображения
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Устанавливаем размеры канваса
+                const maxSize = 600;
+                let width = originalImage.width;
+                let height = originalImage.height;
+                
+                // Масштабируем изображение, если оно слишком большое
+                if (width > maxSize || height > maxSize) {
+                    const ratio = Math.min(maxSize / width, maxSize / height);
+                    width = Math.floor(width * ratio);
+                    height = Math.floor(height * ratio);
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(originalImage, 0, 0, width, height);
+                
+                // Очищаем контейнеры
+                puzzlePiecesContainer.innerHTML = '';
+                puzzleBoard.innerHTML = '';
+                puzzlePieces = [];
+                boardCells = [];
+                
+                // Размер одного кусочка
+                const pieceWidth = width / difficulty;
+                const pieceHeight = height / difficulty;
+                
+                // Создаем кусочки пазла
+                for (let row = 0; row < difficulty; row++) {
+                    for (let col = 0; col < difficulty; col++) {
+                        const pieceId = row * difficulty + col;
+                        
+                        // Создаем канвас для кусочка
+                        const pieceCanvas = document.createElement('canvas');
+                        pieceCanvas.width = pieceWidth;
+                        pieceCanvas.height = pieceHeight;
+                        const pieceCtx = pieceCanvas.getContext('2d');
+                        
+                        // Вырезаем часть изображения
+                        pieceCtx.drawImage(
+                            canvas,
+                            col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight,
+                            0, 0, pieceWidth, pieceHeight
+                        );
+                        
+                        // Создаем элемент кусочка
+                        const piece = document.createElement('div');
+                        piece.className = 'puzzle-piece';
+                        piece.draggable = true;
+                        piece.dataset.id = pieceId;
+                        piece.dataset.row = row;
+                        piece.dataset.col = col;
+                        piece.style.backgroundImage = `url(${pieceCanvas.toDataURL()})`;
+                        piece.style.backgroundSize = `${width}px ${height}px`;
+                        piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
+                        piece.style.width = `${pieceWidth}px`;
+                        piece.style.height = `${pieceHeight}px`;
+                        piece.style.cursor = 'grab';
+                        
+                        // Добавляем обработчики перетаскивания
+                        piece.addEventListener('dragstart', handleDragStart);
+                        piece.addEventListener('dragend', handleDragEnd);
+                        
+                        puzzlePiecesContainer.appendChild(piece);
+                        puzzlePieces.push(piece);
+                        
+                        // Создаем ячейку на поле
+                        const cell = document.createElement('div');
+                        cell.className = 'board-cell';
+                        cell.dataset.row = row;
+                        cell.dataset.col = col;
+                        cell.dataset.id = pieceId;
+                        cell.style.width = `${pieceWidth}px`;
+                        cell.style.height = `${pieceHeight}px`;
+                        
+                        // Обработчики для ячейки
+                        cell.addEventListener('dragover', handleDragOver);
+                        cell.addEventListener('drop', handleDrop);
+                        cell.addEventListener('dragenter', handleDragEnter);
+                        cell.addEventListener('dragleave', handleDragLeave);
+                        
+                        puzzleBoard.appendChild(cell);
+                        boardCells.push(cell);
+                    }
+                }
+                
+                // Настраиваем размер поля
+                puzzleBoard.style.width = `${width}px`;
+                puzzleBoard.style.height = `${height}px`;
+                puzzleBoard.style.gridTemplateColumns = `repeat(${difficulty}, 1fr)`;
+                puzzlePiecesContainer.style.gridTemplateColumns = `repeat(${difficulty}, 1fr)`;
+                
+                // Включаем кнопку перемешивания
+                shuffleBtn.disabled = false;
+                
+                // Запускаем таймер
+                startGame();
+            };
+            
+            // Если изображение уже загружено
+            if (originalImage.complete) {
+                originalImage.onload();
+            }
+        }
+
+        // Обработчики перетаскивания
+        function handleDragStart(e) {
+            draggedPiece = e.target;
+            e.dataTransfer.setData('text/plain', e.target.dataset.id);
+            e.target.style.opacity = '0.5';
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+            draggedPiece = null;
+            
+            // Убираем подсветку со всех ячеек
+            boardCells.forEach(cell => {
+                cell.style.backgroundColor = '';
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            if (e.target.classList.contains('board-cell')) {
+                e.target.style.backgroundColor = '#ffebee';
+            }
+        }
+
+        function handleDragLeave(e) {
+            if (e.target.classList.contains('board-cell')) {
+                e.target.style.backgroundColor = '';
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            if (!draggedPiece || !e.target.classList.contains('board-cell')) return;
+            
+            const pieceId = draggedPiece.dataset.id;
+            const targetCell = e.target;
+            
+            // Проверяем, правильная ли это ячейка
+            const isCorrect = 
+                parseInt(draggedPiece.dataset.row) === parseInt(targetCell.dataset.row) &&
+                parseInt(draggedPiece.dataset.col) === parseInt(targetCell.dataset.col);
+            
+            // Помещаем кусочек в ячейку
+            targetCell.appendChild(draggedPiece);
+            draggedPiece.style.position = 'relative';
+            draggedPiece.style.left = '0';
+            draggedPiece.style.top = '0';
+            
+            // Обновляем счетчик ходов
+            moves++;
+            movesCounter.textContent = `↔️ Ходы: ${moves}`;
+            
+            // Помечаем ячейку
+            if (isCorrect) {
+                targetCell.classList.add('correct');
+                draggedPiece.style.cursor = 'default';
+                draggedPiece.draggable = false;
+            } else {
+                targetCell.classList.remove('correct');
+            }
+            
+            // Проверяем, собран ли весь пазл
+            checkPuzzleCompletion();
+            
+            // Сбрасываем подсветку
+            targetCell.style.backgroundColor = '';
+        }
+
+        // Перемешивание кусочков
+        function shufflePieces() {
+            const piecesArray = Array.from(puzzlePiecesContainer.children);
+            
+            // Перемешиваем массив
+            for (let i = piecesArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                puzzlePiecesContainer.appendChild(piecesArray[j]);
+            }
+            
+            // Очищаем поле
+            boardCells.forEach(cell => {
+                cell.classList.remove('correct');
+                cell.innerHTML = '';
+            });
+            
+            // Сбрасываем счетчики
+            moves = 0;
+            movesCounter.textContent = `↔️ Ходы: ${moves}`;
+            startGame();
+        }
+
+        // Проверка завершения пазла
+        function checkPuzzleCompletion() {
+            const correctCells = document.querySelectorAll('.board-cell.correct');
+            const totalCells = difficulty * difficulty;
+            
+            if (correctCells.length === totalCells) {
+                endGame();
+            }
+        }
+
+        // Запуск игры
+        function startGame() {
+            if (gameStarted) return;
+            
+            gameStarted = true;
+            startTime = new Date();
+            
+            // Обновляем таймер каждую секунду
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = Math.floor((now - startTime) / 1000);
+                const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+                const seconds = (diff % 60).toString().padStart(2, '0');
+                timer.textContent = `⏱️ ${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        // Завершение игры
+        function endGame() {
+            clearInterval(timerInterval);
+            gameStarted = false;
+            
+            // Показываем сообщение о победе
+            const now = new Date();
+            const diff = Math.floor((now - startTime) / 1000);
+            const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+            const seconds = (diff % 60).toString().padStart(2, '0');
+            
+            document.getElementById('finalTime').textContent = `${minutes}:${seconds}`;
+            document.getElementById('finalMoves').textContent = moves;
+            
+            // Показываем сообщение
+            message.classList.add('show');
+            overlay.classList.add('show');
+            
+            // Запускаем конфетти
+            createConfetti();
+        }
+
+        // Создание конфетти
+        function createConfetti() {
+            const colors = ['#ff3366', '#ff6699', '#ff99cc', '#ff0066', '#ff66b2'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.width = Math.random() * 20 + 10 + 'px';
+                confetti.style.height = Math.random() * 20 + 10 + 'px';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                
+                document.body.appendChild(confetti);
+                
+                // Удаляем конфетти после анимации
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        // Начать заново
+        function playAgain() {
+            message.classList.remove('show');
+            overlay.classList.remove('show');
+            shufflePieces();
+        }
+
+        // Инициализация при загрузке
+        difficultySelect.addEventListener('change', () => {
+            if (gameStarted) {
+                if (confirm('Изменить сложность? Текущий прогресс будет потерян.')) {
+                    createPuzzle();
+                } else {
+                    difficultySelect.value = difficulty;
+                }
+            }
+        });
+
+        // Загружаем галерею при старте
+        window.addEventListener('DOMContentLoaded', loadImageGallery);
+    </script>
+</body>
+</html>

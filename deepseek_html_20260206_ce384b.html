@@ -133,11 +133,8 @@
     </style>
 </head>
 <body>
-    <div class="counter">Найдено: <span id="foundCount">0</span>/8</div>
-    <h1 class="title">Найди все секретные послания! 💌</h1>
-    <div class="treasure-map" id="treasureMap"></div>
-    <div class="final-message" id="finalMessage">🎉 Ты нашла все послания! Ты самая внимательная! 💖</div>
-    
+     <div class="treasure-map" id="treasureMap"></div>
+     
     <div class="overlay" id="overlay"></div>
     <div class="message-box" id="messageBox">
         <div class="message-content" id="messageContent"></div>
@@ -153,7 +150,23 @@
             "Твои глаза - как две звезды на ночном небе ✨",
             "Я всегда думаю о тебе 💭",
             "Ты делаешь меня счастливее каждый день 🎈",
-            "Я так рад, что ты в моей жизни! 🥰"
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
+            "Я так рад, что ты в моей жизни! 🥰",
         ];
         
         const foundMessages = [];
@@ -163,7 +176,7 @@
             const map = document.getElementById('treasureMap');
             
             // Создаем 8 секретных мест
-            for(let i = 0; i < 8; i++) {
+            for(let i = 0; i < 24; i++) {
                 const spot = document.createElement('div');
                 spot.className = 'secret-spot';
                 spot.dataset.message = messages[i];
@@ -176,7 +189,7 @@
                 spot.style.top = y + 'px';
                 
                 // Случайный символ
-                const symbols = ['💌', '❤️', '💖', '💕', '💞', '💓', '💗', '💘'];
+                const symbols = ['💌', '❤️', '💖', '💕', '💞', '💓', '💗', '💘','💌', '❤️', '💖', '💕', '💞', '💓', '💗', '💘','💌', '❤️', '💖', '💕', '💞', '💓', '💗', '💘'];
                 spot.textContent = symbols[i];
                 
                 spot.addEventListener('click', () => {
